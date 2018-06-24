@@ -75,7 +75,7 @@ const init = () => {
     const stream = await getStream();
     const video = await createVideoElement(stream);
     const canvas = createCanvasElement(video);
-    startStreamingToServer(canvas);
+    startStreamingToServer(canvas, 500);
 
     renderingLoop();
   });
