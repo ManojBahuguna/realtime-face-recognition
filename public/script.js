@@ -20,7 +20,8 @@ const createCanvasElement = (video) => {
 const getCanvasFrame = (canvas) => new Promise((resolve) => {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(canvas.videoElement, 0, 0);
-  canvas.toBlob((blob) => resolve(blob));
+  resolve(canvas.toDataURL());
+  // canvas.toBlob((blob) => resolve(blob));
 });
 
 const sendFrame = (frame) => {
@@ -39,13 +40,52 @@ const startStreamingToServer = (canvas, timeout = 100) => {
   }, timeout);
 };
 
+
+const renderers = new Map;
+const renderReceivedFrame = (id, frame) => {
+  if (!renderers.has(id)) {
+    const element = document.createElement('img');
+    document.body.appendChild(element);
+    renderers.set(id, { element });
+  }
+
+  renderers.get(id).src = frame;
+};
+
+const removeRenderer = (id) => {
+  if (renderers.has(id)) {
+    const renderer = renderers.get(id);
+    renderer.element.remove();
+    renderers.delete(id);
+  }
+};
+
+const renderingLoop = () => {
+  renderers.forEach(({ element, src }) => {
+    element.src = src;
+  });
+
+  window.requestAnimationFrame(renderingLoop);
+};
+
 const init = () => {
   socket.on('connect', async () => {
     const stream = await getStream();
     const video = await createVideoElement(stream);
     const canvas = createCanvasElement(video);
     startStreamingToServer(canvas);
+
+    renderingLoop();
   });
+
+
+  socket.on('frame', (...data) => {
+    renderReceivedFrame(...data);
+  })
 }
+
+socket.on('endstream', (id) => {
+  removeRenderer(id);
+});
 
 init();

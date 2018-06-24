@@ -17,11 +17,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Sockets
 const io = socketio(server);
+const sendFrameToAll = (senderId, frame) => {
+  io.volatile.emit('frame', senderId, frame);
+};
+
+const onDisconnected = (id) => {
+  io.emit('endstream', id);
+};
+
 io.on('connection', (socket) => {
-  console.log('connected', socket.id);
+  const { id } = socket;
+  console.log('connected', id);
 
   socket.on('frame', (data) => {
+    sendFrameToAll(id, data);
+  });
 
+  socket.on('disconnect', () => {
+    onDisconnected(id);
   });
 });
 
