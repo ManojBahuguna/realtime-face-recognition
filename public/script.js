@@ -1,4 +1,6 @@
-const socket = window.io();
+const socket = window.io({
+  transports: ['websocket']
+});
 
 const createVideoElement = (stream) => new Promise((resolve) => {
   const video = document.createElement('video');
