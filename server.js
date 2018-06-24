@@ -16,7 +16,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Sockets
-const io = socketio(server);
+const io = socketio(server, {
+  transports: ['websocket']
+});
 const sendFrameToAll = (senderId, frame) => {
   io.volatile.emit('frame', senderId, frame);
 };
