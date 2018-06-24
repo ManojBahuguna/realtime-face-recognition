@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   console.log('connected', socket.id);
 
   socket.on('frame', (data) => {
-    console.log(data);
+
   });
 });
 
