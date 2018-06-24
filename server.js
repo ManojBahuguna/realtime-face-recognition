@@ -30,6 +30,7 @@ io.on('connection', (socket) => {
   console.log('connected', id);
 
   socket.on('frame', (data) => {
+    console.log('received from ' + id);
     sendFrameToAll(id, data);
   });
 

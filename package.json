@@ -1,7 +1,7 @@
 {
-  "name": "video-stream-sockets",
+  "name": "video-stream-websockets",
   "version": "1.0.0",
-  "description": "video live streaming using websockets",
+  "description": "live video streaming using websockets",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
