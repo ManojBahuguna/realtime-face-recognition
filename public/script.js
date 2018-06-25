@@ -22,7 +22,7 @@ const createCanvasElement = (video) => {
 const getCanvasFrame = (canvas) => new Promise((resolve) => {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(canvas.videoElement, 0, 0);
-  resolve(canvas.toDataURL('image/jpeg', 0.1));
+  resolve(canvas.toDataURL('image/jpeg', 0.4));
   // canvas.toBlob((blob) => resolve(blob));
 });
 
@@ -75,7 +75,7 @@ const init = () => {
     const stream = await getStream();
     const video = await createVideoElement(stream);
     const canvas = createCanvasElement(video);
-    startStreamingToServer(canvas, 200);
+    startStreamingToServer(canvas, 100);
 
     renderingLoop();
   });
