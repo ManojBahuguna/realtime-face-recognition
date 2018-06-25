@@ -22,7 +22,7 @@ const createCanvasElement = (video) => {
 const getCanvasFrame = (canvas) => new Promise((resolve) => {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(canvas.videoElement, 0, 0);
-  resolve(canvas.toDataURL());
+  resolve(canvas.toDataURL('image/jpeg', 0.1));
   // canvas.toBlob((blob) => resolve(blob));
 });
 
@@ -31,7 +31,7 @@ const sendFrame = (frame) => {
 };
 
 const getStream = async () =>
-  await navigator.mediaDevices.getUserMedia({ video: true });
+  await navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 400, frameRate: 10 } });
 
 const startStreamingToServer = (canvas, timeout = 100) => {
   getCanvasFrame(canvas)
@@ -75,7 +75,7 @@ const init = () => {
     const stream = await getStream();
     const video = await createVideoElement(stream);
     const canvas = createCanvasElement(video);
-    startStreamingToServer(canvas, 300);
+    startStreamingToServer(canvas, 200);
 
     renderingLoop();
   });
