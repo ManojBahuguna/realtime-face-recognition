@@ -56,6 +56,12 @@ const renderers = new Map;
 const renderReceivedFrame = (id, frame) => {
   if (!renderers.has(id)) {
     const element = document.createElement('img');
+    element.id = id;
+    element.title = id;
+    if (id === socket.id) {
+      element.classList.add('current');
+    }
+
     document.body.appendChild(element);
     renderers.set(id, { element });
   }
@@ -83,6 +89,8 @@ const renderingLoop = () => {
 
 const init = () => {
   socket.on('connect', async () => {
+    document.querySelector('p').innerText = socket.id;
+
     const stream = await getStream();
     const video = await createVideoElement(stream);
     const canvas = createCanvasElement(video);
