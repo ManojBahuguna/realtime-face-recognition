@@ -1,3 +1,5 @@
+const defaultTimeout = 100;
+
 const socket = window.io({
   transports: ['websocket']
 });
@@ -22,8 +24,8 @@ const createCanvasElement = (video) => {
 const getCanvasFrame = (canvas) => new Promise((resolve) => {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(canvas.videoElement, 0, 0);
-  resolve(canvas.toDataURL('image/jpeg', 0.4));
-  // canvas.toBlob((blob) => resolve(blob));
+  // resolve(canvas.toDataURL('image/jpeg', 0.4));
+  canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.4);
 });
 
 const sendFrame = (frame) => {
@@ -31,17 +33,24 @@ const sendFrame = (frame) => {
 };
 
 const getStream = async () =>
-  await navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 400, frameRate: 10 } });
+  await navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 400 } });
 
-const startStreamingToServer = (canvas, timeout = 100) => {
+const startStreamingToServer = (canvas, timeout = defaultTimeout) => {
   getCanvasFrame(canvas)
-    .then(frame => sendFrame(frame));
-
-  window.setTimeout(() => {
-    startStreamingToServer(canvas, timeout);
-  }, timeout);
+    .then(frame => {
+      sendFrame(frame);
+      window.setTimeout(() => {
+        startStreamingToServer(canvas, timeout);
+      }, timeout);
+    });
 };
 
+const getStringFromBuffer = (buffer) => {
+  var arrayBufferView = new Uint8Array(buffer);
+  var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+  var imageUrl = window.URL.createObjectURL(blob);
+  return imageUrl;
+};
 
 const renderers = new Map;
 const renderReceivedFrame = (id, frame) => {
@@ -51,7 +60,8 @@ const renderReceivedFrame = (id, frame) => {
     renderers.set(id, { element });
   }
 
-  renderers.get(id).src = frame;
+  // renderers.get(id).src = frame;
+  renderers.get(id).src = getStringFromBuffer(frame);
 };
 
 const removeRenderer = (id) => {
@@ -66,8 +76,9 @@ const renderingLoop = () => {
   renderers.forEach(({ element, src }) => {
     element.src = src;
   });
-
-  window.requestAnimationFrame(renderingLoop);
+  window.setTimeout(() => {
+    window.requestAnimationFrame(renderingLoop);
+  }, defaultTimeout);
 };
 
 const init = () => {
